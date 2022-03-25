@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Check your inventory, or someone else\'s')
 		.addUserOption(option =>
 			option
-				.setName('name')
+				.setName('user')
 				.setDescription('The name of the person who\'s inventory you want to check')
 				.setRequired(false)),
 	async execute(interaction) {
@@ -16,9 +16,9 @@ module.exports = {
 		const user = await Users.findOne({ where: { user_id: target.id } });
 		const items = await user.getItems();
 
-		if (!items.length) return interaction.reply(`${target.tag} has nothing!`);
+		if (!items.length) return interaction.reply(`<@${target.id}> has nothing!`);
 
-		return interaction.reply(`${target.tag} currently has ${items.map(i => `${i.amount} ${i.item.name}`).join(', ')}`);
+		return interaction.reply(`<@${target.id}> currently has: \n${items.map(i => `${i.amount} ${i.item.name}`).join('\n')}`);
 
 	},
 };

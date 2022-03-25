@@ -4,6 +4,11 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			primaryKey: true,
 		},
+		steam_id: {
+			type: DataTypes.INTEGER,
+			unique: true,
+			'default': 0,
+		},
 		balance: {
 			type: DataTypes.INTEGER,
 			defaultValue: 0,
