@@ -42,6 +42,5 @@ module.exports = {
 			currency.add(targetUser.id, currencyAmount);
 			return interaction.reply(`Successfully added ${currencyAmount}💰 to ${targetUser}`);
 		}
-		// return interaction.reply('Worked so far');
 	},
 };

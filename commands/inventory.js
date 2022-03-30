@@ -12,7 +12,6 @@ module.exports = {
 	async execute(interaction) {
 		const { Users } = require('../dbObjects.js');
 		const target = interaction.options.getUser('user') ?? interaction.user;
-		console.log(`Target ID: ${target.id}`);
 		const user = await Users.findOne({ where: { user_id: target.id } });
 		const items = await user.getItems();
 

@@ -28,6 +28,19 @@ Reflect.defineProperty(Users.prototype, 'addItem', {
 	},
 });
 
+Reflect.defineProperty(Users.prototype, 'removeItem', {
+	value: async function removeItem(item) {
+		const userItem = await UserItems.findOne({
+			where: { user_id: this.user_id, item_id: item.id },
+		});
+
+		if (userItem.amount > 0) {
+			userItem.amount -= 1;
+			return userItem.save();
+		}
+	},
+});
+
 Reflect.defineProperty(Users.prototype, 'getItems', {
 	value: function getItems() {
 		return UserItems.findAll({

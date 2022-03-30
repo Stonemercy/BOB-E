@@ -19,6 +19,6 @@ module.exports = {
 			},
 		});
 
-		return interaction.reply(`${target.tag} has ${currency.getBalance(target.id)}💰`);
+		return interaction.reply(`<@${target.id}> has ${currency.getBalance(target.id)}💰`);
 	},
 };
