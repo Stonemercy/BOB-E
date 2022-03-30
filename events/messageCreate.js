@@ -1,7 +1,7 @@
 module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
-		const { Users } = require('../dbobjects.js');
+		const { Users } = require('../currencyShopDB/csDBObjects.js');
 		const { currency } = require('../index.js');
 
 		// 937512103701540874 is connection channel
@@ -31,9 +31,9 @@ module.exports = {
 			if (user) {
 				const NinetyNinePercent = Math.floor(Math.random() * 101);
 				console.log(NinetyNinePercent);
-				if (NinetyNinePercent >= 9) {
+				if (NinetyNinePercent >= 99) {
 					user.balance += Number(1000);
-					message.channel.send(`${message.author.username} just got the 1% bonus of 1000💰`);
+					message.channel.send(`${message.author.username} just got the random 1% bonus of 1000💰`);
 				}
 				return user.save();
 			}

@@ -16,8 +16,9 @@ module.exports = {
 				.setRequired(true)),
 	async execute(interaction) {
 		const { currency } = require ('../index.js');
-		const { Users } = require ('../dbObjects.js');
-		const { Permissions } = require('discord.js');
+		const { Users } = require ('../currencyShopDB/csDBObjects.js');
+		const { Guilds } = require('../guildDB/guilddbObjects');
+		const staffRoleId = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const targetUser = interaction.options.getUser('user');
 		const currencyAmount = interaction.options.getString('amount');
 		Reflect.defineProperty(currency, 'add', {
@@ -35,7 +36,11 @@ module.exports = {
 				return newUser;
 			},
 		});
-		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+
+		if (!staffRoleId) {
+			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
+		}
+		else if (!interaction.member.roles.cache.some(role => role.id === staffRoleId.staff_role_id)) {
 			return interaction.reply('You don\'t have permission to do that!');
 		}
 		else {

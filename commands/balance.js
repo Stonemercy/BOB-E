@@ -12,6 +12,8 @@ module.exports = {
 	async execute(interaction) {
 		const { currency } = require('../index.js');
 		const target = interaction.options.getUser('user') ?? interaction.user;
+		const { Guilds } = require('../guildDB/guilddbObjects');
+		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		Reflect.defineProperty(currency, 'getBalance', {
 			value: id => {
 				const user = currency.get(id);
@@ -19,6 +21,15 @@ module.exports = {
 			},
 		});
 
-		return interaction.reply(`<@${target.id}> has ${currency.getBalance(target.id)}💰`);
+		if (!shopChannel) {
+			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
+		}
+		else if (interaction.channelId !== shopChannel.shop_channel_id) {
+			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${shopChannel.shop_channel_id}>`, ephemeral: true });
+		}
+		else {
+			return interaction.reply(`<@${target.id}> has ${currency.getBalance(target.id)}💰`);
+		}
+
 	},
 };

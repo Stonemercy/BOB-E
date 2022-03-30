@@ -1,15 +1,15 @@
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('database', 'username', 'password', {
+const sequelize = new Sequelize('currencyShop', 'username', 'password', {
 	host: 'localhost',
 	dialect: 'sqlite',
 	logging: false,
-	storage: 'database.sqlite',
+	storage: './currencyShopDB/currencyShop.sqlite',
 });
 
-const CurrencyShop = require('./models/CurrencyShop.js')(sequelize, Sequelize.DataTypes);
-require('./models/Users.js')(sequelize, Sequelize.DataTypes);
-require('./models/UserItems.js')(sequelize, Sequelize.DataTypes);
+const CurrencyShop = require('./csModels/CurrencyShop.js')(sequelize, Sequelize.DataTypes);
+require('./csModels/Users.js')(sequelize, Sequelize.DataTypes);
+require('./csModels/UserItems.js')(sequelize, Sequelize.DataTypes);
 
 const force = process.argv.includes('--force') || process.argv.includes('-f');
 
