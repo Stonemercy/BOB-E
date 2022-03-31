@@ -7,9 +7,9 @@ const sequelize = new Sequelize('currencyShop', 'username', 'password', {
 	storage: './currencyShopDB/currencyShop.sqlite',
 });
 
-const Users = require('./CSmodels/Users.js')(sequelize, Sequelize.DataTypes);
-const CurrencyShop = require('./CSmodels/CurrencyShop.js')(sequelize, Sequelize.DataTypes);
-const UserItems = require('./CSmodels/UserItems.js')(sequelize, Sequelize.DataTypes);
+const Users = require('./csModels/Users.js')(sequelize, Sequelize.DataTypes);
+const CurrencyShop = require('./csModels/CurrencyShop.js')(sequelize, Sequelize.DataTypes);
+const UserItems = require('./csModels/UserItems.js')(sequelize, Sequelize.DataTypes);
 
 UserItems.belongsTo(CurrencyShop, { foreignKey: 'item_id', as: 'item' });
 
