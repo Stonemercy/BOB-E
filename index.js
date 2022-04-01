@@ -30,4 +30,12 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
+client.commandstest = new Collection();
+const commandTestFiles = fs.readdirSync('./commandstest').filter(file => file.endsWith('.js'));
+
+for (const file of commandTestFiles) {
+	const commandTest = require(`./commandstest/${file}`);
+	client.commands.set(commandTest.data.name, commandTest);
+}
+
 client.login(token);
