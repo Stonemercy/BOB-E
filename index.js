@@ -4,9 +4,9 @@ const { token } = require('./config.json');
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-const currency = new Collection();
+const userCurrency = new Collection();
 
-module.exports = { currency };
+module.exports = { userCurrency };
 
 // Event collection
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));

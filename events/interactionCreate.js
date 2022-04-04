@@ -5,12 +5,12 @@ module.exports = {
 
 		const command = interaction.client.commands.get(interaction.commandName);
 		const { Users } = require('../currencyShopDB/csDBObjects.js');
-		const { currency } = require('../index.js');
-		const userCheck = currency.get(interaction.user.id);
+		const { userCurrency } = require('../index.js');
+		const userCheck = userCurrency.get(interaction.user.id);
 
 		if (!userCheck) {
 			const newUser = await Users.create({ user_id: interaction.user.id });
-			currency.set(interaction.user.id, newUser);
+			userCurrency.set(interaction.user.id, newUser);
 		}
 
 		try {

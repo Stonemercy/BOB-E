@@ -10,22 +10,22 @@ module.exports = {
 				.setDescription('What you want to buy')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { currency } = require ('../index.js');
+		const { userCurrency } = require ('../index.js');
 		const { Users, CurrencyShop } = require ('../currencyShopDB/csDBObjects.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
 		const { Op } = require('sequelize');
 		const itemName = interaction.options.getString('item');
 		const item = await CurrencyShop.findOne({ where: { name: { [Op.like]: itemName } } });
 		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
-		Reflect.defineProperty(currency, 'getBalance', {
+		Reflect.defineProperty(userCurrency, 'getBalance', {
 			value: id => {
-				const user = currency.get(id);
+				const user = userCurrency.get(id);
 				return user ? user.balance : 0;
 			},
 		});
-		Reflect.defineProperty(currency, 'add', {
+		Reflect.defineProperty(userCurrency, 'add', {
 			value: async (id, amount) => {
-				const user = currency.get(id);
+				const user = userCurrency.get(id);
 
 				if (user) {
 					user.balance += Number(amount);
@@ -33,7 +33,7 @@ module.exports = {
 				}
 
 				const newUser = await Users.create({ user_id: id, balance: amount });
-				currency.set(id, newUser);
+				userCurrency.set(id, newUser);
 
 				return newUser;
 			},
@@ -48,15 +48,15 @@ module.exports = {
 		else if (!item) {
 			return interaction.reply('That item doesn\'t exist.');
 		}
-		else if (item.cost > currency.getBalance(interaction.user.id)) {
-			return interaction.reply(`You currently have ${currency.getBalance(interaction.user.id)}, but the ${item.name} costs ${item.cost}!`);
+		else if (item.cost > userCurrency.getBalance(interaction.user.id)) {
+			return interaction.reply(`You currently have ${userCurrency.getBalance(interaction.user.id)}, but the ${item.name} costs ${item.cost}!`);
 		}
 		else {
 			const user = await Users.findOne({ where: { user_id: interaction.user.id } });
-			currency.add(interaction.user.id, -item.cost);
+			userCurrency.add(interaction.user.id, -item.cost);
 			await user.addItem(item);
 
-			return interaction.reply(`You've bought: ${item.name}.\nRemaining balance: ${currency.getBalance(interaction.user.id)}`);
+			return interaction.reply(`You've bought: ${item.name}.\nRemaining balance: ${userCurrency.getBalance(interaction.user.id)}`);
 		}
 
 	},

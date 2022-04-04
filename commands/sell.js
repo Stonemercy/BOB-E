@@ -10,7 +10,7 @@ module.exports = {
 				.setDescription('What you want to sell')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { currency } = require ('../index.js');
+		const { userCurrency } = require ('../index.js');
 		const { Users, CurrencyShop, UserItems } = require ('../currencyShopDB/csDBObjects.js');
 		const { Op } = require('sequelize');
 		const itemName = interaction.options.getString('item');
@@ -18,9 +18,9 @@ module.exports = {
 		const userItem = await UserItems.findOne({ where: { user_id: interaction.user.id, item_id: item.id } });
 		const { Guilds } = require('../guildDB/guilddbObjects');
 		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
-		Reflect.defineProperty(currency, 'add', {
+		Reflect.defineProperty(userCurrency, 'add', {
 			value: async (id, amount) => {
-				const user = currency.get(id);
+				const user = userCurrency.get(id);
 
 				if (user) {
 					user.balance += Number(amount);
@@ -28,7 +28,7 @@ module.exports = {
 				}
 
 				const newUser = await Users.create({ user_id: id, balance: amount });
-				currency.set(id, newUser);
+				userCurrency.set(id, newUser);
 
 				return newUser;
 			},
@@ -48,9 +48,9 @@ module.exports = {
 		}
 		else {
 			const user = await Users.findOne({ where: { user_id: interaction.user.id } });
-			currency.add(interaction.user.id, item.cost * 0.75);
+			userCurrency.add(interaction.user.id, item.cost * 0.75);
 			await user.removeItem(item);
-			return interaction.reply(`You've sold: ${item.name}.\nCurrent balance: ${currency.getBalance(interaction.user.id)}`);
+			return interaction.reply(`You've sold: ${item.name}.\nCurrent balance: <:vox_symbol:940510190443307009>${userCurrency.getBalance(interaction.user.id)}`);
 
 		}
 

@@ -15,22 +15,22 @@ module.exports = {
 				.setDescription('The transfer amount')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { currency } = require('../index.js');
+		const { userCurrency } = require('../index.js');
 		const { Users } = require('../currencyShopDB/csDBObjects.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
 		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
-		Reflect.defineProperty(currency, 'getBalance', {
+		Reflect.defineProperty(userCurrency, 'getBalance', {
 			value: id => {
-				const user = currency.get(id);
+				const user = userCurrency.get(id);
 				return user ? user.balance : 0;
 			},
 		});
-		const currentAmount = currency.getBalance(interaction.user.id);
+		const currentAmount = userCurrency.getBalance(interaction.user.id);
 		const transferAmount = interaction.options.getInteger('amount');
 		const transferTarget = interaction.options.getUser('user');
-		Reflect.defineProperty(currency, 'add', {
+		Reflect.defineProperty(userCurrency, 'add', {
 			value: async (id, amount) => {
-				const user = currency.get(id);
+				const user = userCurrency.get(id);
 
 				if (user) {
 					user.balance += Number(amount);
@@ -38,7 +38,7 @@ module.exports = {
 				}
 
 				const newUser = await Users.create({ user_id: id, balance: amount });
-				currency.set(id, newUser);
+				userCurrency.set(id, newUser);
 
 				return newUser;
 			},
@@ -50,15 +50,15 @@ module.exports = {
 			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${shopChannel.shop_channel_id}>`, ephemeral: true });
 		}
 		else if (transferAmount > currentAmount) {
-			return interaction.reply(`Sorry ${interaction.user}, you only have ${currentAmount}.`);
+			return interaction.reply(`Sorry ${interaction.user}, you only have <:vox_symbol:940510190443307009>${currentAmount}.`);
 		}
 		else if (transferAmount <= 0) {
 			return interaction.reply(`Please enter an amount greater than zero, ${interaction.user}.`);
 		}
 		else {
-			currency.add(interaction.user.id, -transferAmount);
-			currency.add(transferTarget.id, transferAmount);
-			return interaction.reply(`Successfully transferred ${transferAmount}💰 to ${transferTarget.tag}. Your current balance is ${currency.getBalance(interaction.user.id)}💰`);
+			userCurrency.add(interaction.user.id, -transferAmount);
+			userCurrency.add(transferTarget.id, transferAmount);
+			return interaction.reply(`Successfully transferred <:vox_symbol:940510190443307009>${transferAmount} to ${transferTarget.tag}.\nYour current balance is ${userCurrency.getBalance(interaction.user.id)}💰`);
 		}
 
 	},

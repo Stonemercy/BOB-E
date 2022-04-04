@@ -18,7 +18,7 @@ module.exports = {
 			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${shopChannel.shop_channel_id}>`, ephemeral: true });
 		}
 		else {
-			return interaction.reply(Formatters.codeBlock(items.map(i => `${i.name}: ${i.cost}💰`).join('\n')));
+			return interaction.reply(Formatters.codeBlock(items.map(i => `${i.name}: <:vox_symbol:940510190443307009>${i.cost}`).join('\n')));
 		}
 	},
 };

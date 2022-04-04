@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Show the leaderboard'),
 	async execute(interaction) {
 		const { Formatters } = require('discord.js');
-		const { currency } = require ('../index.js');
+		const { userCurrency } = require ('../index.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
 		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 
@@ -19,10 +19,10 @@ module.exports = {
 		else {
 			return interaction.reply(
 				Formatters.codeBlock(
-					currency.sort((a, b) => b.balance - a.balance)
+					userCurrency.sort((a, b) => b.balance - a.balance)
 						.filter(user => interaction.client.users.cache.has(user.user_id))
 						.first(10)
-						.map((user, position) => `(${position + 1}) ${(interaction.client.users.cache.get(user.user_id).tag)}: ${user.balance}💰`)
+						.map((user, position) => `(${position + 1}) ${(interaction.client.users.cache.get(user.user_id).tag)}: <:vox_symbol:940510190443307009>${user.balance}`)
 						.join('\n'),
 				),
 			);

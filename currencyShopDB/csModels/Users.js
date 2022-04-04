@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		steam_id: {
 			type: DataTypes.INTEGER,
-			unique: true,
-			'default': 0,
+			defaultValue: 0,
 		},
 		balance: {
 			type: DataTypes.INTEGER,

@@ -15,14 +15,14 @@ module.exports = {
 				.setDescription('Your shop channel')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { Permissions } = require('discord.js');
+		// const { Permissions } = require('discord.js');
 		const staffRoleId = interaction.options.getRole('staffrole');
 		const shopChannelId = interaction.options.getChannel('shopchannel');
 		const { Guilds } = require('../guildDB/guilddbObjects.js');
 
-		if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+		/* if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
 			return interaction.reply('You don\'t have permission to do that!');
-		}
+		}*/
 
 		if (!staffRoleId) {
 			return interaction.reply('You have not supplied a proper role');

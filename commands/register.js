@@ -29,7 +29,7 @@ module.exports = {
 		}
 		else {
 			await Users.upsert({ user_id: userID, steam_id: steamId });
-			return interaction.reply(`Successfully added ${steamId} as your steam id!`);
+			return interaction.reply(`Successfully added ${steamId} as your steam id, <@${userID}>!`);
 		}
 
 	},
