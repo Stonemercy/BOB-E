@@ -29,7 +29,7 @@ ChatWebhookFormatStyle="[:x01]<{PlayerInfo}>[:x01] <ChatMode={ChatMode}> **>** _
 
 bUseLoginReportWebhook=False
 LoginReportFormatStyle="Player [:x01]<{PlayerInfo}>[:x01] joined server _{Server}_\n----"
-LogoutReportFormatStyle="Player [:x01]<{PlayerInfo}>[:x01] left server _{Server}_, played for {Hours} hours and {Minutes} minutes.\n----"
+LogoutReportFormatStyle="Player [:x01]<{PlayerInfo}>[:x01] left server _{Server}_, played for {Hours}:{Minutes}.\n----"
 
 bUseAdminCommandUsageWebhook=False
 AdminCommandUsageFormatStyle="Player [:x01]<{PlayerInfo}>[:x01] used command [:x01]{Cmd}[:x01]\n----"
