@@ -115,8 +115,8 @@ module.exports = {
 			return interaction.reply(`**Success**\n**${updateItem}** has had it's name changed to **${updatedName}**`);
 		}
 		else if (removeItemCheck !== null && removeItem) {
-			await CurrencyShop.destroy({ where: { guild_id: interaction.guildId, name: removeItem } });
-			await UserItems.destroy({ where: { guild_id: interaction.guildId, item_name: removeItem } });
+			await CurrencyShop.destroy({ where: { guild_id: interaction.guildId, name: { [Op.like]: removeItem } } });
+			await UserItems.destroy({ where: { guild_id: interaction.guildId, item_name: { [Op.like]: removeItem } } });
 			return interaction.reply(`**${removeItem}** has been successfully removed from your shop and all users that had one`);
 		}
 		else {
