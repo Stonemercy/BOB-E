@@ -4,3 +4,4 @@ node_modules
 *.sqlite
 link.txt
 .vscode/launch.json
+deployprivate.js

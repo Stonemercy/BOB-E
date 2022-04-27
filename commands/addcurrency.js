@@ -9,46 +9,46 @@ module.exports = {
 				.setName('user')
 				.setDescription('Who you want to give currency to')
 				.setRequired(true))
-		.addStringOption(option =>
+		.addIntegerOption(option =>
 			option
 				.setName('amount')
 				.setDescription('How much you want to give them')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { userCurrency } = require ('../index.js');
 		const { Users } = require ('../currencyShopDB/csDBObjects.js');
-		const { Guilds } = require('../guildDB/guilddbObjects');
-		const staffRoleId = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
+		const { Guilds } = require('../guildDB/guilddbObjects.js');
+		const { owner } = require('../config.json');
+		const currentUser = await Users.findOne({ where: { user_id: interaction.user.id, guild_id: interaction.guildId } });
+		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const targetUser = interaction.options.getUser('user');
-		const currencyAmount = interaction.options.getString('amount');
-		Reflect.defineProperty(userCurrency, 'add', {
-			value: async (id, amount) => {
-				const user = userCurrency.get(id);
+		const currencyAmount = interaction.options.getInteger('amount');
+		const targetUserDb = await Users.findOne({ where: { user_id: targetUser.id, guild_id: interaction.guildId } });
 
-				if (user) {
-					user.balance += Number(amount);
-					return user.save();
-				}
-
-				const newUser = await Users.create({ user_id: id, balance: amount });
-				userCurrency.set(id, newUser);
-
-				return newUser;
-			},
-		});
-
-		if (!staffRoleId) {
+		if (!currentGuild.staff_role_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
 		}
-		else if (!interaction.member.roles.cache.some(role => role.id === staffRoleId.staff_role_id)) {
+		else if (!interaction.member.roles.cache.some(role => role.id === currentGuild.staff_role_id)) {
 			return interaction.reply('You don\'t have permission to do that!');
 		}
-		else if (currencyAmount < 0) {
-			return interaction.reply('You can\'t add negative amounts!');
+		else if (currencyAmount <= 0) {
+			if (interaction.user.id === owner && targetUserDb !== null) {
+				await currentUser.update({ balance: currentUser.balance += Number(currencyAmount) });
+				return interaction.reply(`Successfully edited ${targetUser}'s currency by: ${currentGuild.shop_currency}${currencyAmount}`);
+			}
+			else if (targetUserDb !== null) {
+				return interaction.reply('You can\'t add negative or nil amounts!');
+			}
+		}
+		else if (targetUserDb === null) {
+			await Users.create({ user_id: targetUser.id, username: targetUser.tag, guild_id: interaction.guildId });
+			const newUser = await Users.findOne({ where: { user_id: targetUser.id, guild_id: interaction.guildId } });
+			await newUser.update({ balance: newUser.balance += Number(currencyAmount) });
+			return interaction.reply(`Successfully added ${currentGuild.shop_currency}${currencyAmount} to ${targetUser}`);
+
 		}
 		else {
-			userCurrency.add(targetUser.id, currencyAmount);
-			return interaction.reply(`Successfully added <:vox_symbol:940510190443307009>${currencyAmount} to ${targetUser}`);
+			await targetUserDb.update({ balance: targetUserDb.balance += Number(currencyAmount) });
+			return interaction.reply(`Successfully added ${currentGuild.shop_currency}${currencyAmount} to ${targetUser}`);
 		}
 	},
 };

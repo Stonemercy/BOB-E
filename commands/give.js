@@ -15,50 +15,37 @@ module.exports = {
 				.setDescription('The transfer amount')
 				.setRequired(true)),
 	async execute(interaction) {
-		const { userCurrency } = require('../index.js');
 		const { Users } = require('../currencyShopDB/csDBObjects.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
-		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
-		Reflect.defineProperty(userCurrency, 'getBalance', {
-			value: id => {
-				const user = userCurrency.get(id);
-				return user ? user.balance : 0;
-			},
-		});
-		const currentAmount = userCurrency.getBalance(interaction.user.id);
+		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
+		const currentUser = await Users.findOne({ where: { guild_id: interaction.guildId, user_id: interaction.user.id } });
 		const transferAmount = interaction.options.getInteger('amount');
 		const transferTarget = interaction.options.getUser('user');
-		Reflect.defineProperty(userCurrency, 'add', {
-			value: async (id, amount) => {
-				const user = userCurrency.get(id);
+		const targetUser = await Users.findOne({ where: { guild_id: interaction.guildId, user_id: transferTarget } });
 
-				if (user) {
-					user.balance += Number(amount);
-					return user.save();
-				}
-
-				const newUser = await Users.create({ user_id: id, balance: amount });
-				userCurrency.set(id, newUser);
-
-				return newUser;
-			},
-		});
-		if (!shopChannel) {
+		if (!currentGuild.shop_channel_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
 		}
-		else if (interaction.channelId !== shopChannel.shop_channel_id) {
-			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${shopChannel.shop_channel_id}>`, ephemeral: true });
-		}
-		else if (transferAmount > currentAmount) {
-			return interaction.reply(`Sorry ${interaction.user}, you only have <:vox_symbol:940510190443307009>${currentAmount}.`);
+		else if (interaction.channelId !== currentGuild.shop_channel_id) {
+			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${currentGuild.shop_channel_id}>`, ephemeral: true });
 		}
 		else if (transferAmount <= 0) {
-			return interaction.reply(`Please enter an amount greater than zero, ${interaction.user}.`);
+			return interaction.reply({ content: `Please enter an amount greater than zero, ${interaction.user}.`, ephemeral: true });
+		}
+		else if (transferAmount > currentUser.balance) {
+			return interaction.reply(`Sorry ${interaction.user}, you only have ${currentGuild.shop_currency}${currentUser.balance}.`);
+		}
+		else if (targetUser === null) {
+			await Users.create({ user_id: transferTarget.id, username: transferTarget.tag, guild_id: interaction.guildId });
+			const newUser = await Users.findOne({ where: { user_id: transferTarget.id, guild_id: interaction.guildId } });
+			await currentUser.update({ balance: currentUser.balance -= Number(transferAmount) });
+			await newUser.update({ balance: newUser.balance += Number(transferAmount) });
+			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency}${currentUser.balance}`);
 		}
 		else {
-			userCurrency.add(interaction.user.id, -transferAmount);
-			userCurrency.add(transferTarget.id, transferAmount);
-			return interaction.reply(`Successfully transferred <:vox_symbol:940510190443307009>${transferAmount} to ${transferTarget.tag}.\nYour current balance is ${userCurrency.getBalance(interaction.user.id)}💰`);
+			await currentUser.update({ balance: currentUser.balance -= Number(transferAmount) });
+			await targetUser.update({ balance: targetUser.balance += Number(transferAmount) });
+			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency}${currentUser.balance}`);
 		}
 
 	},

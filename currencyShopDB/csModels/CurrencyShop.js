@@ -1,12 +1,16 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('currency_shop', {
+	return sequelize.define('currency_shops', {
+		guild_id: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+		},
 		name: {
 			type: DataTypes.STRING,
-			unique: true,
+			defaultValue: 'Item',
 		},
 		cost: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
+			dafaultValue: 0,
 		},
 	}, {
 		timestamps: false,

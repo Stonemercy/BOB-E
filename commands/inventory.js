@@ -10,26 +10,26 @@ module.exports = {
 				.setDescription('The name of the person who\'s inventory you want to check')
 				.setRequired(false)),
 	async execute(interaction) {
-		const { Users } = require('../currencyShopDB/csDBObjects.js');
-		const target = interaction.options.getUser('user') ?? interaction.user;
-		const user = await Users.findOne({ where: { user_id: target.id } });
-		const items = await user.getItems();
+		const { UserItems } = require('../currencyShopDB/csDBObjects.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
-		const shopChannel = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
+		const target = interaction.options.getUser('user') ?? interaction.user;
+		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
+		const targetItems = await UserItems.findAll({ where: { user_id: target.id, guild_id: interaction.guildId } });
 
-		if (!shopChannel) {
+		if (!currentGuild.shop_channel_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
 		}
-		else if (interaction.channelId !== shopChannel.shop_channel_id) {
-			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${shopChannel.shop_channel_id}>`, ephemeral: true });
+		else if (interaction.channelId !== currentGuild.shop_channel_id) {
+			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${currentGuild.shop_channel_id}>`, ephemeral: true });
 		}
-		else if (!items.length) {
-			return interaction.reply(`<@${target.id}> has nothing!`);
+		else if (!targetItems.length && target.id === interaction.user.id) {
+			return interaction.reply('You have no items :(');
 		}
-		else {
-			return interaction.reply(`<@${target.id}> currently has: \n${items.map(i => `${i.amount} ${i.item.name}`).join('\n')}`);
+		else if (!targetItems.length && target.id !== interaction.user.id) {
+			return interaction.reply(`${target.tag} has no items :(`);
 		}
-
-
+		else if (target.id === interaction.user.id) {
+			return interaction.reply(`You have: \n${targetItems.map(i => `${i.amount} ${i.item_name}`).join('\n')}`);
+		}
 	},
 };

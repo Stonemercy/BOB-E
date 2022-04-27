@@ -5,17 +5,14 @@ module.exports = {
 
 		const command = interaction.client.commands.get(interaction.commandName);
 		const { Users } = require('../currencyShopDB/csDBObjects.js');
-		const { userCurrency } = require('../index.js');
-		const userCheck = userCurrency.get(interaction.user.id);
+		const userCheck = Users.findOne({ where: { user_id: interaction.user.id } });
 
 		if (!userCheck) {
-			const newUser = await Users.create({ user_id: interaction.user.id });
-			userCurrency.set(interaction.user.id, newUser);
+			await Users.create({ user_id: interaction.user.id, username: interaction.user.tag, guild_id: interaction.guildId });
 		}
 
 		try {
 			await command.execute(interaction);
-			console.log(`${interaction.user.tag} just used the "${interaction.commandName}" command`);
 		}
 		catch (error) {
 			console.error(error);
