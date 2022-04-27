@@ -41,7 +41,7 @@ module.exports = {
 						.setDescription('Edit an existing item')
 						.addStringOption(option =>
 							option
-								.setName('current-item')
+								.setName('item-edit')
 								.setDescription('The item that\'s in your shop')
 								.setRequired(true))
 						.addStringOption(option =>
@@ -51,18 +51,30 @@ module.exports = {
 						.addIntegerOption(option =>
 							option
 								.setName('update-cost')
-								.setDescription('Updates the item\'s cost')))),
+								.setDescription('Updates the item\'s cost')))
+				.addSubcommand(subcommand =>
+					subcommand
+						.setName('remove')
+						.setDescription('Remove the item from your shop')
+						.addStringOption(option =>
+							option
+								.setName('item-remove')
+								.setDescription('The item you wish to remove')
+								.setRequired(true)))),
 	async execute(interaction) {
 		const newItem = [interaction.options.getString('item-name'), interaction.options.getInteger('item-cost')];
-		const updateItem = interaction.options.getString('current-item');
+		const updateItem = interaction.options.getString('item-edit');
 		const updatedName = interaction.options.getString('update-name');
 		const updatedCost = interaction.options.getInteger('update-cost');
+		const removeItem = interaction.options.getString('item-remove');
 		const guildCurrency = interaction.options.getString('currency-icon');
 		const { Op } = require('sequelize');
 		const { Guilds } = require('../guildDB/guilddbObjects.js');
-		const { CurrencyShop } = require('../currencyShopDB/csDBObjects.js');
+		const { CurrencyShop, UserItems } = require('../currencyShopDB/csDBObjects.js');
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
-		const itemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: updateItem || newItem[0] } });
+		const newItemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: { [Op.like]: newItem[0] } } });
+		const removeItemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: { [Op.like]: removeItem } } });
+		const updateItemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: { [Op.like]: updateItem } } });
 
 		if (!currentGuild) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
@@ -76,17 +88,17 @@ module.exports = {
 				shop_currency: guildCurrency });
 			return interaction.reply(`**Success!**\n\nNew currency icon: ${guildCurrency}`);
 		}
-		else if (itemCheck === null && newItem[0] !== null) {
+		else if (newItemCheck === null && newItem[0] !== null) {
 			await CurrencyShop.create({
 				guild_id: interaction.guildId,
 				name: newItem[0],
 				cost: newItem[1] });
 			return interaction.reply(`**Success!**\n\nItem name: ${newItem[0]}\nItem cost: ${currentGuild.shop_currency}${newItem[1]}`);
 		}
-		else if (itemCheck !== null && itemCheck.name === newItem[0]) {
+		else if (newItemCheck !== null && newItemCheck.name === newItem[0]) {
 			return interaction.reply('**Something went wrong**\nIt seems like that item is already in your shop\nPlease use the **/setupshop items edit** to edit it');
 		}
-		else if (itemCheck !== null && updatedCost) {
+		else if (updateItemCheck !== null && updatedCost) {
 			await CurrencyShop.update({ cost: updatedCost }, {
 				where: {
 					guild_id: interaction.guildId, name: { [Op.like]: updateItem },
@@ -94,16 +106,21 @@ module.exports = {
 			});
 			return interaction.reply(`**Success**\n**${updateItem}** has had it's cost changed to **${updatedCost}**`);
 		}
-		else if (!itemCheck) {
-			return interaction.reply('I had trouble finding that item, make sure you spelled it correctly and that it exists in your shop');
-		}
-		if (itemCheck !== null && updatedName) {
+		if (updateItemCheck !== null && updatedName) {
 			await CurrencyShop.update({ name: updatedName }, {
 				where: {
 					guild_id: interaction.guildId, name: { [Op.like]: updateItem },
 				},
 			});
 			return interaction.reply(`**Success**\n**${updateItem}** has had it's name changed to **${updatedName}**`);
+		}
+		else if (removeItemCheck !== null && removeItem) {
+			await CurrencyShop.destroy({ where: { guild_id: interaction.guildId, name: removeItem } });
+			await UserItems.destroy({ where: { guild_id: interaction.guildId, item_name: removeItem } });
+			return interaction.reply(`**${removeItem}** has been successfully removed from your shop and all users that had one`);
+		}
+		else {
+			return interaction.reply('I had trouble finding that item, make sure you spelled it correctly and that it exists in your shop');
 		}
 	},
 };
