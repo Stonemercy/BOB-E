@@ -38,7 +38,7 @@ module.exports = {
 		const { CurrencyShop } = require('../currencyShopDB/csDBObjects.js');
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 
-		if (currentGuild && !interaction.member.roles.cache.some(role => role.id === currentGuild.staff_role_id)) {
+		if (currentGuild.staff_role_id && !interaction.member.roles.cache.has(currentGuild.staff_role_id)) {
 			return interaction.reply('You don\'t have permission to do that!');
 		}
 		else {
