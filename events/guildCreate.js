@@ -32,7 +32,8 @@ module.exports = {
 			user.send({ embeds: [welcomeEmbed] });
 		}
 		else {
-			guild.ownerId.send({ embeds: [welcomeEmbed] });
+			const owner = guild.fetchOwner();
+			owner.send({ embeds: [welcomeEmbed] });
 		}
 		await Guilds.create({ guild_id: guild.id });
 		console.log(`New server added: ${guild.name}`);
