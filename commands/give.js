@@ -21,7 +21,7 @@ module.exports = {
 		const currentUser = await Users.findOne({ where: { guild_id: interaction.guildId, user_id: interaction.user.id } });
 		const transferAmount = interaction.options.getInteger('amount');
 		const transferTarget = interaction.options.getUser('user');
-		const targetUser = await Users.findOne({ where: { guild_id: interaction.guildId, user_id: transferTarget } });
+		const targetUser = await Users.findOne({ where: { user_id: transferTarget.id, guild_id: interaction.guildId } });
 
 		if (!currentGuild.shop_channel_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
@@ -29,7 +29,7 @@ module.exports = {
 		else if (interaction.channelId !== currentGuild.shop_channel_id) {
 			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${currentGuild.shop_channel_id}>`, ephemeral: true });
 		}
-		else if (targetUser.user_id === interaction.user.id) {
+		else if (transferTarget.id === interaction.user.id) {
 			return interaction.reply({ content: 'You can\'t give money to yourself!', ephemeral: true });
 		}
 		else if (transferAmount <= 0) {
