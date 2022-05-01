@@ -32,7 +32,7 @@ module.exports = {
 			user.send({ embeds: [welcomeEmbed] });
 		}
 		else {
-			const owner = guild.fetchOwner();
+			const owner = await guild.fetchOwner();
 			owner.send({ embeds: [welcomeEmbed] });
 		}
 		await Guilds.create({ guild_id: guild.id });
