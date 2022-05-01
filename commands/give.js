@@ -29,6 +29,9 @@ module.exports = {
 		else if (interaction.channelId !== currentGuild.shop_channel_id) {
 			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${currentGuild.shop_channel_id}>`, ephemeral: true });
 		}
+		else if (currentUser.user_id === interaction.user.id) {
+			return interaction.reply({ content: 'You can\'t give money to yourself!', ephemeral: true });
+		}
 		else if (transferAmount <= 0) {
 			return interaction.reply({ content: `Please enter an amount greater than zero, ${interaction.user}.`, ephemeral: true });
 		}
