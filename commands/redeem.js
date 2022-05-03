@@ -28,14 +28,6 @@ module.exports = {
 			return interaction.reply({ content: 'That item doesn\'t exist, did you spell it correctly?', ephemeral: true });
 		}
 		else if (!currentUserItem) {
-			await UserItems.create({
-				user_id: interaction.user.id,
-				guild_id: interaction.guildId,
-				item_name: item,
-			});
-			return interaction.reply({ content: 'You don\'t have that item', ephemeral: true });
-		}
-		else if (currentUserItem.amount < 1) {
 			return interaction.reply({ content: 'You don\'t have that item', ephemeral: true });
 		}
 		else {

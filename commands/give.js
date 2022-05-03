@@ -36,19 +36,17 @@ module.exports = {
 			return interaction.reply({ content: `Please enter an amount greater than zero, ${interaction.user}.`, ephemeral: true });
 		}
 		else if (transferAmount > currentUser.balance) {
-			return interaction.reply(`Sorry ${interaction.user}, you only have ${currentGuild.shop_currency}${currentUser.balance}.`);
+			return interaction.reply(`Sorry ${interaction.user}, you can't give ${currentGuild.shop_currency} ${transferAmount} when you only have ${currentGuild.shop_currency} ${currentUser.balance}.`);
 		}
 		else if (targetUser === null) {
-			await Users.create({ user_id: transferTarget.id, username: transferTarget.tag, guild_id: interaction.guildId });
-			const newUser = await Users.findOne({ where: { user_id: transferTarget.id, guild_id: interaction.guildId } });
 			await currentUser.update({ balance: currentUser.balance -= Number(transferAmount) });
-			await newUser.update({ balance: newUser.balance += Number(transferAmount) });
-			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency}${currentUser.balance}`);
+			await Users.create({ user_id: transferTarget.id, username: transferTarget.tag, guild_id: interaction.guildId, balance: Number(transferAmount) });
+			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency} ${currentUser.balance}`);
 		}
 		else {
 			await currentUser.update({ balance: currentUser.balance -= Number(transferAmount) });
 			await targetUser.update({ balance: targetUser.balance += Number(transferAmount) });
-			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency}${currentUser.balance}`);
+			return interaction.reply(`Successfully transferred ${currentGuild.shop_currency}${transferAmount} to ${transferTarget.tag}.\nYour new balance is ${currentGuild.shop_currency} ${currentUser.balance}`);
 		}
 
 	},

@@ -6,11 +6,14 @@ module.exports = {
 		const { steamKey } = require('../config.json');
 		const steam = new SteamAPI(steamKey);
 		const { Users } = require('../currencyShopDB/csDBObjects.js');
+		const { Guilds } = require('../guildDB/guilddbObjects.js');
+		const totalGuilds = await Guilds.count();
 		const totalUsers = await Users.count();
 		const missingSteam = await Users.count({ where: { steam_id: '0' } });
+
 		console.log(`Discord users in database: ${totalUsers}`);
 		console.log(`Users without steam ID's registered: ${missingSteam}`);
-
+		console.log(`Current guilds in DB: ${totalGuilds}`);
 		client.user.setActivity('for errors in my code', { type: 'WATCHING' });
 		console.log(`Ready! Logged in as "${client.user.tag}"`);
 

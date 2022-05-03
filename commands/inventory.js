@@ -3,16 +3,11 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('inventory')
-		.setDescription('Check your inventory, or someone else\'s')
-		.addUserOption(option =>
-			option
-				.setName('user')
-				.setDescription('The name of the person who\'s inventory you want to check')
-				.setRequired(false)),
+		.setDescription('Check your inventory, or someone else\'s'),
 	async execute(interaction) {
 		const { UserItems } = require('../currencyShopDB/csDBObjects.js');
 		const { Guilds } = require('../guildDB/guilddbObjects');
-		const target = interaction.options.getUser('user') ?? interaction.user;
+		const target = interaction.user;
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const targetItems = await UserItems.findAll({ where: { user_id: target.id, guild_id: interaction.guildId } });
 
@@ -25,11 +20,8 @@ module.exports = {
 		else if (!targetItems.length && target.id === interaction.user.id) {
 			return interaction.reply('You have no items :(');
 		}
-		else if (!targetItems.length && target.id !== interaction.user.id) {
-			return interaction.reply(`${target.tag} has no items :(`);
-		}
 		else if (target.id === interaction.user.id) {
-			return interaction.reply(`You have: \n${targetItems.map(i => `${i.amount} ${i.item_name}`).join('\n')}`);
+			return interaction.reply(`You have: \n${targetItems.map(i => `${i.amount} - ${i.item_name}`).join('\n')}`);
 		}
 	},
 };

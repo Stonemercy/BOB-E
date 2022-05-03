@@ -22,8 +22,10 @@ module.exports = {
 				.setColor('#87ceeb')
 				.setTitle(`The Shop of "${interaction.guild.name}"`);
 
-
-			guildItems.map(i => shopEmbed.addField(i.name, currentGuild.shop_currency + i.cost));
+			if (guildItems.length === 0) {
+				shopEmbed.addField('Shop is empty :(', 'Looks like items need to be added');
+			}
+			else { guildItems.map(i => shopEmbed.addField(`Name: ${i.name}`, `${currentGuild.shop_currency} ` + i.cost));}
 
 			return interaction.reply({ embeds: [shopEmbed] });
 		}

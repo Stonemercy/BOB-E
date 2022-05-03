@@ -76,7 +76,7 @@ module.exports = {
 		const removeItemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: { [Op.like]: removeItem } } });
 		const updateItemCheck = await CurrencyShop.findOne({ where: { guild_id: interaction.guildId, name: { [Op.like]: updateItem } } });
 
-		if (!currentGuild) {
+		if (!currentGuild.shop_channel_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
 		}
 		else if (!interaction.member.roles.cache.has(currentGuild.staff_role_id)) {
@@ -98,6 +98,15 @@ module.exports = {
 		else if (newItemCheck !== null && newItemCheck.name === newItem[0]) {
 			return interaction.reply('**Something went wrong**\nIt seems like that item is already in your shop\nPlease use the **/setupshop items edit** to edit it');
 		}
+		else if (updateItemCheck !== null && updatedCost && updatedName) {
+			await CurrencyShop.update({ name: updatedName, cost: updatedCost }, {
+				where: {
+					guild_id: interaction.guildId, name: { [Op.like]: updateItem },
+				},
+			});
+			return interaction.reply(`**Success**\n**${updateItem}** has been changed to:\nName: **${updatedName}**\nCost: **${updatedCost}**`);
+
+		}
 		else if (updateItemCheck !== null && updatedCost) {
 			await CurrencyShop.update({ cost: updatedCost }, {
 				where: {
@@ -112,12 +121,17 @@ module.exports = {
 					guild_id: interaction.guildId, name: { [Op.like]: updateItem },
 				},
 			});
+			await UserItems.update({ item_name: updatedName }, {
+				where: {
+					guild_id: interaction.guildId, item_name: { [Op.like]: updateItem },
+				},
+			});
 			return interaction.reply(`**Success**\n**${updateItem}** has had it's name changed to **${updatedName}**`);
 		}
 		else if (removeItemCheck !== null && removeItem) {
 			await CurrencyShop.destroy({ where: { guild_id: interaction.guildId, name: { [Op.like]: removeItem } } });
 			await UserItems.destroy({ where: { guild_id: interaction.guildId, item_name: { [Op.like]: removeItem } } });
-			return interaction.reply(`**${removeItem}** has been successfully removed from your shop and all users that had one`);
+			return interaction.reply(`**${removeItem}** has been successfully removed from your shop and all users that had one (no currency has been returned to them)`);
 		}
 		else {
 			return interaction.reply('I had trouble finding that item, make sure you spelled it correctly and that it exists in your shop');

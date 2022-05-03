@@ -6,7 +6,7 @@ const steam = new SteamAPI(steamKey);
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('register')
-		.setDescription('Tie your Steam ID to your Discord account')
+		.setDescription('Link your Steam ID to your Discord account')
 		.addStringOption(option =>
 			option
 				.setName('steamid')

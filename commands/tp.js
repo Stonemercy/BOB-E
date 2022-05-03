@@ -26,7 +26,12 @@ module.exports = {
 		}
 
 		const nextNum = Math.min(...talentPoints.filter(nextTP));
-		return interaction.reply({ content: `Your next talent point is at growth ${nextNum}`, ephemeral: true });
+		if (growthLevel >= 4.875) {
+			return interaction.reply({ content: 'You have to more talent points to get!', ephemeral: true });
+		}
+		else {
+			return interaction.reply({ content: `Your next talent point is at growth ${nextNum}`, ephemeral: true });
+		}
 
 	},
 };

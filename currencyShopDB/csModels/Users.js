@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('users', {
 		user_id: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.STRING,
 			allowNull: false,
 		},
 		username: {
@@ -9,11 +9,10 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 		},
 		guild_id: {
-			type: DataTypes.INTEGER,
-			defaultValue: 0,
+			type: DataTypes.STRING,
 		},
 		steam_id: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.STRING,
 			defaultValue: 0,
 		},
 		balance: {

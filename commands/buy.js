@@ -18,7 +18,7 @@ module.exports = {
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const currentUser = await Users.findOne({ where: { user_id: interaction.user.id, guild_id: interaction.guildId } });
 
-		if (!currentGuild) {
+		if (!currentGuild.shop_channel_id) {
 			return interaction.reply('Looks like you haven\'t set up my bot yet, please do so by running the **/setup** command!');
 		}
 		else if (interaction.channelId !== currentGuild.shop_channel_id) {
@@ -28,7 +28,7 @@ module.exports = {
 			return interaction.reply('That item doesn\'t exist.');
 		}
 		else if (item.cost > currentUser.balance) {
-			return interaction.reply(`You currently have ${currentGuild.shop_currency}${currentUser.balance}, but the ${item.name} costs ${item.cost}!`);
+			return interaction.reply(`You currently have ${currentGuild.shop_currency} ${currentUser.balance}, but the ${item.name} costs ${item.cost}!`);
 		}
 		else {
 			await currentUser.update({ balance: currentUser.balance -= Number(item.cost) });
@@ -46,7 +46,7 @@ module.exports = {
 				});
 			}
 
-			return interaction.reply(`You've bought: ${item.name}.\nRemaining balance: ${currentGuild.shop_currency} ${currentUser.balance}`);
+			return interaction.reply(`You've bought: **${item.name}**.\nRemaining balance: ${currentGuild.shop_currency} ${currentUser.balance}`);
 		}
 
 	},

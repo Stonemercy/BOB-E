@@ -30,25 +30,23 @@ module.exports = {
 		else if (!interaction.member.roles.cache.some(role => role.id === currentGuild.staff_role_id)) {
 			return interaction.reply('You don\'t have permission to do that!');
 		}
-		else if (currencyAmount <= 0) {
-			if (interaction.user.id === owner && targetUserDb !== null) {
+		else if (currencyAmount <= 0 && targetUserDb !== null) {
+			if (interaction.user.id === owner) {
 				await currentUser.update({ balance: currentUser.balance += Number(currencyAmount) });
-				return interaction.reply(`Successfully edited ${targetUser}'s currency by: ${currentGuild.shop_currency}${currencyAmount}`);
+				return interaction.reply(`Successfully edited ${targetUser}'s currency by: ${currentGuild.shop_currency} ${currencyAmount}`);
 			}
-			else if (targetUserDb !== null) {
+			else {
 				return interaction.reply('You can\'t add negative or nil amounts!');
 			}
 		}
 		else if (targetUserDb === null) {
-			await Users.create({ user_id: targetUser.id, username: targetUser.tag, guild_id: interaction.guildId });
-			const newUser = await Users.findOne({ where: { user_id: targetUser.id, guild_id: interaction.guildId } });
-			await newUser.update({ balance: newUser.balance += Number(currencyAmount) });
-			return interaction.reply(`Successfully added ${currentGuild.shop_currency}${currencyAmount} to ${targetUser}`);
+			await Users.create({ user_id: targetUser.id, username: targetUser.tag, guild_id: interaction.guildId, balance: Number(currencyAmount) });
+			return interaction.reply(`Successfully added ${currentGuild.shop_currency} ${currencyAmount} to ${targetUser}`);
 
 		}
 		else {
 			await targetUserDb.update({ balance: targetUserDb.balance += Number(currencyAmount) });
-			return interaction.reply(`Successfully added ${currentGuild.shop_currency}${currencyAmount} to ${targetUser}`);
+			return interaction.reply(`Successfully added ${currentGuild.shop_currency} ${currencyAmount} to ${targetUser}`);
 		}
 	},
 };
