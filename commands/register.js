@@ -26,6 +26,13 @@ module.exports = {
 			return interaction.reply({ content: `Your provided steam ID was only ${steamIdToCheck.length} digit/s long\nYou need to supply a steam ID that is 17 digits long`, ephemeral: true });
 		}
 
+		try {
+			await steam.getUserSummary(steamId);
+		}
+		catch (onRejected) {
+			return interaction.reply({ content: 'That wasn\'t a valid steam ID', ephemeral: true });
+		}
+
 		const steamPromise = await steam.getUserSummary(steamId);
 		const steamProfile = steamPromise[0];
 
