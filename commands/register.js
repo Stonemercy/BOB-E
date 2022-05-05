@@ -22,7 +22,7 @@ module.exports = {
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const currentUser = await Users.findOne({ where: { user_id: interaction.user.id, guild_id: interaction.guildId } });
 
-		if (steamId.length < 17) {
+		if (steamIdToCheck.length < 17) {
 			return interaction.reply({ content: `Your provided steam ID was only ${steamIdToCheck.length} digit/s long\nYou need to supply a steam ID that is 17 digits long`, ephemeral: true });
 		}
 
