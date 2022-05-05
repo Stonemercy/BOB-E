@@ -21,6 +21,11 @@ module.exports = {
 		const { Guilds } = require('../guildDB/guilddbObjects');
 		const currentGuild = await Guilds.findOne({ where: { guild_id: interaction.guildId } });
 		const currentUser = await Users.findOne({ where: { user_id: interaction.user.id, guild_id: interaction.guildId } });
+
+		if (steamId.length < 17) {
+			return interaction.reply({ content: `Your provided steam ID was only ${steamIdToCheck.length} digit/s long\nYou need to supply a steam ID that is 17 digits long`, ephemeral: true });
+		}
+
 		const steamPromise = await steam.getUserSummary(steamId);
 		const steamProfile = steamPromise[0];
 
@@ -66,9 +71,6 @@ module.exports = {
 		else if (interaction.channelId !== currentGuild.shop_channel_id) {
 			return interaction.reply({ content: `You need to use this in the designated shop channel: <#${currentGuild.shop_channel_id}>`, ephemeral: true });
 		}
-		else if (!steamId) {
-			return interaction.reply({ content: `Your provided steam ID was only ${steamIdToCheck.length} digit/s long\nYou need to supply a steam ID that is 17 digits long`, ephemeral: true });
-		}
 		else if (!currentUser) {
 			await Users.create({
 				user_id: interaction.user.id,
@@ -77,7 +79,7 @@ module.exports = {
 			});
 		}
 		else {
-			await currentUser.update({ steam_id: steamId });
+			await currentUser.update({ steam_id: String(steamId) });
 			return interaction.reply({ embeds: [steamEmbed], content: `Successfully added **${steamId}** as your steam id\nPlease check the following information is correct:`, ephemeral: true });
 		}
 
